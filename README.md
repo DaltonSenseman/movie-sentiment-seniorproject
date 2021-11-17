@@ -1,2 +1,2 @@
 # movie-sentiment-seniorproject
-Senior Project at FGCU generating movie sentiment analysis, for our project sponcer CallMiner 
+Senior Project at FGCU generating movie review sentiment analysis, for our project sponsor CallMiner.
