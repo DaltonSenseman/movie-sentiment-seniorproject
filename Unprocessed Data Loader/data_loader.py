@@ -110,15 +110,16 @@ elif target.lower() == "processing":
             try:
                 cur.execute(ds.package_movie(count, review['movie']))
                 print(ds.package_movie(count, review['movie']))
+                cur.execute(ds.package_processing_review(review, count))
                 count = count + 1
             except sqlite3.IntegrityError:
                 try:
                     movie_title = '\'' + review['movie'] + '\''
                     cur.execute(f"SELECT ref_num from movies WHERE name = {movie_title};")
-                    print(cur.fetchone())
-                    print(ds.package_processing_review(review))
+                    ref_id = cur.fetchone()
+                    cur.execute(ds.package_processing_review(review, ref_id))
                 except sqlite3.OperationalError as e:
-                    print(e)
+                    print("ERROR ENCOUNTERED: " + e)
                     print(ds.package_movie(count, review['movie']))
                     break
 

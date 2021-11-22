@@ -34,8 +34,8 @@ def package_training_review(counter, review, sentiment):
 #                   "not_helpful int," \
 #                  "FOREIGN KEY(movie_id) REFERENCES movie(ref_num));"
 
-def package_processing_review(review):
-    response = f"({review['review_id']}, {review['reviewer']}, " \
+def package_processing_review(review, movie_tag):
+    response = f"({review['review_id']}, {movie_tag} ,{review['reviewer']}, " \
                f"{review['rating']}," \
                f"{clean_string(review['review_summary'])}, {review['review_date']}," \
                f" {bool(review['spoiler_tag'])}," \
