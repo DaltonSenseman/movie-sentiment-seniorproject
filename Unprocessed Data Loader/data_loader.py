@@ -13,9 +13,9 @@ import json
 con = sqlite3.connect('./review_database.db')
 
 training_table_creation = 'CREATE TABLE IF NOT EXISTS training (' \
-                 'review_id integer PRIMARY KEY,' \
-                 'review text,' \
-                 'sentiment integer)'
+                          'review_id integer PRIMARY KEY,' \
+                          'review text,' \
+                          'sentiment integer)'
 
 cur = con.cursor()
 
@@ -28,7 +28,6 @@ movie_table_creation = "CREATE TABLE IF NOT EXISTS movies (ref_num int PRIMARY K
 
 cur.execute(movie_table_creation)
 con.commit()
-
 
 processing_table_creation = "CREATE TABLE IF NOT EXISTS review (review_id varchar PRIMARY KEY," \
                             "reviewer varchar," \
@@ -44,8 +43,6 @@ processing_table_creation = "CREATE TABLE IF NOT EXISTS review (review_id varcha
 
 cur.execute(processing_table_creation)
 con.commit()
-
-
 
 target = sys.argv[1]
 file = sys.argv[2]
@@ -75,7 +72,7 @@ if target.lower() == "training":
             try:
                 review_addition = ds.package_training_review(
                     counter, review, sentiments[sentiment])
-                training_batch_statement = training_batch_statement +\
+                training_batch_statement = training_batch_statement + \
                                            review_addition + ','
 
             except KeyError:
@@ -88,7 +85,7 @@ if target.lower() == "training":
                 training_batch_statement = training_batch_statement + \
                                            review_addition + ','
 
-            if (counter % 1000 == 0):
+            if counter % 1000 == 0:  # 1000 increment batches
 
                 statements.append(training_batch_statement[:-1] + ';')
 
@@ -106,24 +103,26 @@ elif target.lower() == "processing":
     print("processing")
     with open(file, newline='', encoding="utf8") as jsonfile:
         data = json.load(jsonfile)
-        movie_count_statement = ("SELECT COUNT(*) from movies")
-        cur.execute(movie_count_statement)
+        cur.execute("SELECT COUNT(*) from movies")
         count = cur.fetchone()[0]
         movie_statement = f"INSERT INTO movies VALUES"
         for review in data:
             try:
                 cur.execute(ds.package_movie(count, review['movie']))
                 print(ds.package_movie(count, review['movie']))
+                count = count + 1
             except sqlite3.IntegrityError:
                 try:
-                    cur.execute(f"SELECT ref_num from movies WHERE name = {review['movie']};")
+                    movie_title = '\'' + review['movie'] + '\''
+                    cur.execute(f"SELECT ref_num from movies WHERE name = {movie_title};")
+                    print(cur.fetchone())
                     print(ds.package_processing_review(review))
                 except sqlite3.OperationalError as e:
                     print(e)
                     print(ds.package_movie(count, review['movie']))
                     break
 
-            count = count + 1
+
 
 
 
