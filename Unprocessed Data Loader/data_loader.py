@@ -22,7 +22,6 @@ cur = con.cursor()
 cur.execute(training_table_creation)
 con.commit()
 
-cur.execute("DROP TABLE movies;")
 
 movie_table_creation = "CREATE TABLE IF NOT EXISTS movies (ref_num int PRIMARY KEY, name varchar, UNIQUE(name));"
 

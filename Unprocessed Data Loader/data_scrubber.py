@@ -21,19 +21,6 @@ def package_training_review(counter, review, sentiment):
 
     return response
 
-
-# "CREATE TABLE IF NOT EXISTS review (review_id varchar PRIMARY KEY," \
-#                           "reviewer varchar," \
-#                          "movie_id int," \
-#                         "rating int," \
-#                        "review_summary varchar," \
-#                       "review_date varchar," \
-#                      "spoiler_tag boolean, " \
-#                     "review_detail varchar," \
-#                    "helpful int," \
-#                   "not_helpful int," \
-#                  "FOREIGN KEY(movie_id) REFERENCES movie(ref_num));"
-
 def package_processing_review(review, movie_tag):
     response = f"({review['review_id']}, {movie_tag} ,{review['reviewer']}, " \
                f"{review['rating']}," \
