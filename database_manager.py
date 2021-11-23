@@ -1,3 +1,11 @@
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# database_manager.py
+# database management for setting up connections and hard coded query's for the
+# training data / raw data NOT for use for the API or where a user can access
+# Author: Dalton Senseman
+# version 0.1a
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
 import sqlite3
 from sqlite3 import Error
 
@@ -6,10 +14,14 @@ class SQLManager(object):
 
     def __init__(self):
         self.conn = None
-        self.dbPath = 'review_database.db'
+        self.dbPath = 'Unprocessed Data Loader/review_database.db'
         self.create_connection()
 
     def create_connection(self):
+        """
+        establishes the initial connection to the SQL database
+        :param self: references the object
+        """
         try:
             self.conn = sqlite3.connect(self.dbPath)
             print("connection created")
