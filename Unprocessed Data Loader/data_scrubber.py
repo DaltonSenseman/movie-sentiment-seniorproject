@@ -7,8 +7,8 @@
 def clean_string(string):
     cleaned_string = string.replace('<br/>', '')
     cleaned_string = cleaned_string.replace('<br />', '')
-    cleaned_string = cleaned_string.replace('\'', '\"')
-    cleaned_string = cleaned_string.replace('`', '\"')
+    cleaned_string = cleaned_string.replace('\'', '"')
+    cleaned_string = cleaned_string.replace('`', '"')
     cleaned_string = cleaned_string.replace('\n', '')
     #cleaned_string = cleaned_string.replace('(', '[')
     #cleaned_string = cleaned_string.replace(')', ']')
@@ -22,15 +22,25 @@ def package_training_review(counter, review, sentiment):
     return response
 
 def package_processing_review(review, movie_tag):
-    response = f"({review['review_id']}, {movie_tag} ,{review['reviewer']}, " \
-               f"{review['rating']}," \
-               f"{clean_string(review['review_summary'])}, {review['review_date']}," \
+    review_id = '\'' + review['review_id'] + '\''
+    reviewer = '\'' + review['reviewer'] + '\''
+    review_summary = '\'' + clean_string(review['review_summary']) + '\''
+    full_review = '\'' + clean_string(review['review_detail']) + '\''
+    date = '\'' + review['review_date'] + '\''
+
+    rating = review['rating']
+    if rating is None:
+        rating = -1
+
+    response = f"({review_id},{movie_tag},{reviewer}," \
+               f"{rating}," \
+               f"{review_summary},{date}," \
                f" {bool(review['spoiler_tag'])}," \
-               f"{clean_string(review['review_detail'])},{review['helpful'][0]}," \
-               f"{review['helpful'][1]})"
+               f"{full_review},{review['helpful'][0]}," \
+               f"{review['helpful'][1]}),"
     return response
 
 def package_movie(count, title):
     movie_title = '\'' + clean_string(title) + '\''
-    response = f"INSERT INTO movies VALUES({count}, {movie_title});"
+    response = f"INSERT INTO movies VALUES({count},{movie_title});"
     return response

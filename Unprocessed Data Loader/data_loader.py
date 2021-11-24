@@ -22,7 +22,6 @@ cur = con.cursor()
 cur.execute(training_table_creation)
 con.commit()
 
-
 movie_table_creation = "CREATE TABLE IF NOT EXISTS movies (ref_num int PRIMARY KEY, name varchar, UNIQUE(name));"
 
 cur.execute(movie_table_creation)
@@ -104,27 +103,30 @@ elif target.lower() == "processing":
         data = json.load(jsonfile)
         cur.execute("SELECT COUNT(*) from movies")
         count = cur.fetchone()[0]
-        movie_statement = f"INSERT INTO movies VALUES"
+        movie_statement = f"INSERT OR IGNORE INTO review VALUES"
         for review in data:
+
             try:
                 cur.execute(ds.package_movie(count, review['movie']))
-                print(ds.package_movie(count, review['movie']))
-                cur.execute(ds.package_processing_review(review, count))
+                con.commit()
+
+                movie_statement = movie_statement + ds.package_processing_review(review, count)
                 count = count + 1
             except sqlite3.IntegrityError:
                 try:
                     movie_title = '\'' + review['movie'] + '\''
                     cur.execute(f"SELECT ref_num from movies WHERE name = {movie_title};")
                     ref_id = cur.fetchone()
-                    cur.execute(ds.package_processing_review(review, ref_id))
+                    movie_statement = movie_statement + ds.package_processing_review(review, ref_id[0])
+
                 except sqlite3.OperationalError as e:
-                    print("ERROR ENCOUNTERED: " + e)
                     print(ds.package_movie(count, review['movie']))
-                    break
+                    print("ERROR ENCOUNTERED: " + str(e))
 
-
-
-
+    print(movie_statement)
+    cur.execute(movie_statement[:-1] + ';')
+    con.commit()
+    con.close()
 
 elif target.lower() == "display_training":
     select = 'SELECT * from training LIMIT 1;'
