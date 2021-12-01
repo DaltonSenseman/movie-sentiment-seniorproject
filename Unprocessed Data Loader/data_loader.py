@@ -50,6 +50,7 @@ sentiments = {
     "negative": 0
 }
 
+
 statements = []
 if target.lower() == "training":
     print("training")

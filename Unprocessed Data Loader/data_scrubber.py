@@ -15,6 +15,7 @@ def clean_string(string):
     return cleaned_string
 
 
+
 def package_training_review(counter, review, sentiment):
     response = '(' + str(counter) + ',\'' + review + '\',' + \
                str(sentiment) + ')'
