@@ -32,12 +32,12 @@ def package_processing_review(review, movie_tag):
     if rating is None:
         rating = -1
 
-    response = f"({review_id},{movie_tag},{reviewer}," \
+    response = f"({review_id},{reviewer},{movie_tag}," \
                f"{rating}," \
                f"{review_summary},{date}," \
                f" {bool(review['spoiler_tag'])}," \
-               f"{full_review},{review['helpful'][0]}," \
-               f"{review['helpful'][1]}),"
+               f"{full_review},{(review['helpful'][0]).replace(',','')}," \
+               f"{(review['helpful'][1]).replace(',','')}),"
     return response
 
 def package_movie(count, title):

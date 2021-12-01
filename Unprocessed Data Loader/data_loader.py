@@ -98,12 +98,13 @@ if target.lower() == "training":
 
 
 elif target.lower() == "processing":
-    print("processing")
+    print("processing", end='')
     with open(file, newline='', encoding="utf8") as jsonfile:
         data = json.load(jsonfile)
         cur.execute("SELECT COUNT(*) from movies")
         count = cur.fetchone()[0]
         movie_statement = f"INSERT OR IGNORE INTO review VALUES"
+        review_input_counter = 0
         for review in data:
 
             try:
@@ -114,7 +115,7 @@ elif target.lower() == "processing":
                 count = count + 1
             except sqlite3.IntegrityError:
                 try:
-                    movie_title = '\'' + review['movie'] + '\''
+                    movie_title = '\'' + ds.clean_string(review['movie']) + '\''
                     cur.execute(f"SELECT ref_num from movies WHERE name = {movie_title};")
                     ref_id = cur.fetchone()
                     movie_statement = movie_statement + ds.package_processing_review(review, ref_id[0])
@@ -123,8 +124,18 @@ elif target.lower() == "processing":
                     print(ds.package_movie(count, review['movie']))
                     print("ERROR ENCOUNTERED: " + str(e))
 
-    print(movie_statement)
-    cur.execute(movie_statement[:-1] + ';')
+            review_input_counter = review_input_counter + 1
+
+            if review_input_counter % 1000 == 0:
+                print('.', end='')
+                cur.execute(movie_statement[:-1] + ';')
+                movie_statement = f"INSERT OR IGNORE INTO review VALUES"
+                review_input_counter = 0
+
+    if movie_statement != f"INSERT OR IGNORE INTO review VALUES":
+        print('.', end='')
+        cur.execute(movie_statement[:-1] + ';')
+
     con.commit()
     con.close()
 
