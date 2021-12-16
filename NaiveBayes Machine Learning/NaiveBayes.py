@@ -8,7 +8,7 @@
 
 from collections import Counter
 
-from database_manager import SQLManager
+from Database_Interaction.database_manager import SQLManager
 import re
 
 
@@ -48,8 +48,16 @@ def main():
     positive_list = generate_histogram(positive_clean)
     negative_list = generate_histogram(negative_clean)
 
-    # print(positive_list)
-    # print(negative_list)
+    # creating a dictionary of the positive and negative lists format ('WORD'; # of occurrences)
+    pos_dict = dict(positive_list)
+    neg_dict = dict(negative_list)
+
+    # total number of words in the entire dictionary for use in making fractional probability
+    pos_dict_TOTAL = sum(pos_dict.values())
+    neg_dict_TOTAL = sum(neg_dict.values())
+
+    for value in pos_dict.values():
+        value = float(value) / float(pos_dict_TOTAL)
 
 
 """             START OF PROGRAM                      """
