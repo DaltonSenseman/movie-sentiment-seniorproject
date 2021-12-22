@@ -66,11 +66,23 @@ def main():
     neg_prior_probability = (neg_dict_TOTAL / testdata_TOTAL)  # .4958
 
     # grabbing a single review to use as a test to create the algorithm
-
     review_test = sentiment.select_a_review("rw1985329")
-    
-    print(review_test)
+    review_test_clean = data_cleaning(review_test)
+    review_test = dict(generate_histogram(review_test_clean))
 
+    # testing searching in the positive and negative lists for matching keys
+
+    for key in review_test.items():
+        if key in pos_dict.items():
+            print("pos Yes")
+        if key in neg_dict.items():
+            print("neg Yes")
+        else:
+            print("no Key need a black box (artificial value to not have * or / by Zero errors)")
+
+    # after compiling matching keys we can then get probabilities and do the algorithm :D
+    # setting the value into a after-ML Table in the DB and iterate though the entire pre-ML data set
+    # then we can tinker with accuracy -Dalton S. 
 
 """             START OF PROGRAM                      """
 
