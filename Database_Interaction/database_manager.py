@@ -40,3 +40,10 @@ class SQLManager(object):
 
         results = cur.fetchall()
         return results
+
+    def select_a_review(self, choice):
+        cur = self.conn.cursor()
+        cur.execute("SELECT review_detail FROM review WHERE review_id = ?", (choice,))
+
+        results = cur.fetchall()
+        return results
