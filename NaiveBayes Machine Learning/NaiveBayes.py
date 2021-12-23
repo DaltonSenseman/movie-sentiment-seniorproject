@@ -12,7 +12,7 @@ from Database_Interaction.database_manager import SQLManager
 import re
 
 
-def training_data_cleaning(data):
+def data_cleaning(data):
     """
     Cleans the training data to not have punctuation and also be in all lowercase
     :param data: an array/list of strings
@@ -20,7 +20,9 @@ def training_data_cleaning(data):
     """
     cleaned_list = []
     for content in data:
-        changed_content = re.sub(r'[^\w\s]', '', str(content))
+        changed_content = re.sub(r'[\.\!\?]', ' ', str(content))
+        changed_content = re.sub(r'[\']', '', str(content))
+        changed_content = re.sub(r'[\W]', ' ', str(content))
         cleaned_list.append(changed_content.strip().lower())
 
     return cleaned_list
@@ -38,27 +40,53 @@ def generate_histogram(string_list):
     return count_all
 
 
+def create_dictionary(database_connection, value):
+    """
+    Creates the training data dictionary's by cleaning the data amd having a histogram made
+    :param database_connection: connection to the testdata SQL server connection
+    :param value: what training data list to grab (0 for negative, 1 for positive)
+    :return: a compiled dictionary
+    """
+    clean = data_cleaning(database_connection.select_all_sentiment(value))
+    new_list = generate_histogram(clean)
+    dictionary = dict(new_list)
+    return dictionary
+
+
 def main():
     sentiment = SQLManager()
-    negative_result = sentiment.select_all_sentiment(0)
-    negative_clean = training_data_cleaning(negative_result)
-    positive_result = sentiment.select_all_sentiment(1)
-    positive_clean = training_data_cleaning(positive_result)
 
-    positive_list = generate_histogram(positive_clean)
-    negative_list = generate_histogram(negative_clean)
-
-    # creating a dictionary of the positive and negative lists format ('WORD'; # of occurrences)
-    pos_dict = dict(positive_list)
-    neg_dict = dict(negative_list)
+    neg_dict = create_dictionary(sentiment, 0)
+    pos_dict = create_dictionary(sentiment, 1)
 
     # total number of words in the entire dictionary for use in making fractional probability
-    pos_dict_TOTAL = sum(pos_dict.values())
-    neg_dict_TOTAL = sum(neg_dict.values())
+    pos_dict_TOTAL = sum(pos_dict.values())  # total number 5702647
+    neg_dict_TOTAL = sum(neg_dict.values())  # total number 5609804
+    testdata_TOTAL = (pos_dict_TOTAL + neg_dict_TOTAL)  # total 113124451
 
-    for value in pos_dict.values():
-        value = float(value) / float(pos_dict_TOTAL)
+    pos_prior_probability = (pos_dict_TOTAL / testdata_TOTAL)  # .5041
+    neg_prior_probability = (neg_dict_TOTAL / testdata_TOTAL)  # .4958
 
+    # grabbing a single review to use as a test to create the algorithm
+    review_test = sentiment.select_a_review("rw1985329")
+    review_test_clean = data_cleaning(review_test)
+    review_test = dict(generate_histogram(review_test_clean))
+
+    # testing searching in the positive and negative lists for matching keys
+
+    for key in review_test.keys():
+        if key in pos_dict.keys():
+            print("pos Yes")
+        if key in neg_dict.keys():
+            print("neg Yes")
+        else:
+            print("no Key need a black box (artificial value to not have * or / by Zero errors)")
+
+    print(review_test)
+
+    # after compiling matching keys we can then get probabilities and do the algorithm :D
+    # setting the value into a after-ML Table in the DB and iterate though the entire pre-ML data set
+    # then we can tinker with accuracy -Dalton S.
 
 """             START OF PROGRAM                      """
 
