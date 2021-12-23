@@ -20,7 +20,9 @@ def data_cleaning(data):
     """
     cleaned_list = []
     for content in data:
-        changed_content = re.sub(r'[^\w\s]', '', str(content))
+        changed_content = re.sub(r'[\.\!\?]', ' ', str(content))
+        changed_content = re.sub(r'[\']', '', str(content))
+        changed_content = re.sub(r'[\W]', ' ', str(content))
         cleaned_list.append(changed_content.strip().lower())
 
     return cleaned_list
@@ -72,17 +74,19 @@ def main():
 
     # testing searching in the positive and negative lists for matching keys
 
-    for key in review_test.items():
-        if key in pos_dict.items():
+    for key in review_test.keys():
+        if key in pos_dict.keys():
             print("pos Yes")
-        if key in neg_dict.items():
+        if key in neg_dict.keys():
             print("neg Yes")
         else:
             print("no Key need a black box (artificial value to not have * or / by Zero errors)")
 
+    print(review_test)
+
     # after compiling matching keys we can then get probabilities and do the algorithm :D
     # setting the value into a after-ML Table in the DB and iterate though the entire pre-ML data set
-    # then we can tinker with accuracy -Dalton S. 
+    # then we can tinker with accuracy -Dalton S.
 
 """             START OF PROGRAM                      """
 
