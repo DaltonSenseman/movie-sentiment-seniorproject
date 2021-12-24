@@ -50,7 +50,6 @@ sentiments = {
     "negative": 0
 }
 
-
 statements = []
 if target.lower() == "training":
     print("training")
@@ -111,15 +110,28 @@ elif target.lower() == "processing":
             try:
                 cur.execute(ds.package_movie(count, review['movie']))
                 con.commit()
+                package = ds.package_processing_review(review, count)
+                cur.execute(f"INSERT OR IGNORE INTO review VALUES (?,?,?,?,?,?,?,?,?,?);", (package[0], package[1],
+                                                                                            package[2], package[3],
+                                                                                            package[4], package[5],
+                                                                                            package[6], package[7],
+                                                                                            package[8], package[9]))
 
-                movie_statement = movie_statement + ds.package_processing_review(review, count)
+                #movie_statement = movie_statement + ds.package_processing_review(review, count)
                 count = count + 1
             except sqlite3.IntegrityError:
                 try:
                     movie_title = '\'' + ds.clean_string(review['movie']) + '\''
                     cur.execute(f"SELECT ref_num from movies WHERE name = {movie_title};")
                     ref_id = cur.fetchone()
-                    movie_statement = movie_statement + ds.package_processing_review(review, ref_id[0])
+                    package = ds.package_processing_review(review, ref_id[0])
+                    cur.execute(f"INSERT OR IGNORE INTO review VALUES (?,?,?,?,?,?,?,?,?,?);", (package[0],package[1],
+                                                                                                package[2],package[3],
+                                                                                                package[4],package[5],
+                                                                                                package[6],package[7],
+                                                                                                package[8],package[9]))
+
+                    #movie_statement = movie_statement + ds.package_processing_review(review, ref_id[0])
 
                 except sqlite3.OperationalError as e:
                     print(ds.package_movie(count, review['movie']))
@@ -127,11 +139,15 @@ elif target.lower() == "processing":
 
             review_input_counter = review_input_counter + 1
 
+
+
+            '''
             if review_input_counter % 1000 == 0:
                 print('.', end='')
                 cur.execute(movie_statement[:-1] + ';')
                 movie_statement = f"INSERT OR IGNORE INTO review VALUES"
                 review_input_counter = 0
+            '''
 
     if movie_statement != f"INSERT OR IGNORE INTO review VALUES":
         print('.', end='')
