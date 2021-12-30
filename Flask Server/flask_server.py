@@ -58,3 +58,24 @@ def search():
     sql_manager.close_connection()
     return jsonify(movies)
 
+@app.route('/user', methods=['GET'])
+def user():
+    name = request.args.get('name').replace("%20", " ")
+    sql_manager = SQLManager()
+    response = sql_manager.display_user(name)
+
+    reviews = []
+    for review in response:
+        print(review)
+        review_data = {'review_id': review[0],
+                       'movie': review[11],
+                       'review_summary': review[4],
+                       'review_date': review[5],
+                       'review': review[7],
+                       'rating': review[3]}
+        reviews.append(review_data)
+
+
+    sql_manager.close_connection()
+    return jsonify(reviews)
+

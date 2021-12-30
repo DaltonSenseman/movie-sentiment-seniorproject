@@ -73,13 +73,23 @@ class SQLManager(object):
         results = cur.fetchall()
         return results
 
-    def search_movies(self,title):
+    def search_movies(self, title):
         cur=self.conn.cursor()
-        fixed_title = "%" + title.replace("%20", " ") + "%"
+        fixed_title = "%" + title+ "%"
 
         print(fixed_title)
         cur.execute("SELECT * from movies WHERE movies.name LIKE ?", (fixed_title,))
 
         results = cur.fetchall()
+        return results
+
+    def display_user(self, name):
+        cur = self.conn.cursor()
+        name = '\'' + name + '\''
+        print(name)
+        cur.execute("SELECT *, movies.name from review INNER JOIN movies on movies.ref_num=review.movie_id WHERE review.reviewer = ?", (name,))
+
+        results = cur.fetchall()
+
         return results
 
