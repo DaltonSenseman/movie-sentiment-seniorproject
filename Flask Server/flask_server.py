@@ -12,7 +12,7 @@ app = Flask(__name__)
 
 
 @app.route('/get', methods=['GET'])
-def hello():
+def specific_review():
     review_id = request.args.get('review_id')
     sql_manager = SQLManager()
     test_review = sql_manager.display_a_review("\'" + review_id + "\'")[0]
@@ -43,6 +43,7 @@ def reviews():
     sql_manager.close_connection()
     return jsonify(reviews)
 
+
 @app.route('/search', methods=['GET'])
 def search():
     title = request.args.get('title').replace("%20", " ")
@@ -57,6 +58,7 @@ def search():
 
     sql_manager.close_connection()
     return jsonify(movies)
+
 
 @app.route('/user', methods=['GET'])
 def user():
@@ -75,7 +77,5 @@ def user():
                        'rating': review[3]}
         reviews.append(review_data)
 
-
     sql_manager.close_connection()
     return jsonify(reviews)
-
