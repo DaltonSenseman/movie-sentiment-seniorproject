@@ -53,28 +53,62 @@ def create_dictionary(database_connection, value):
     return dictionary
 
 
-def sentiment_generator(review_data, test_data_pos, test_data_neg):
+def sentiment_generator(review_data, test_data_pos, test_data_neg, pos_dict_TOTAL, neg_dict_TOTAL,
+                        pos_prior_probability, neg_prior_probability):
     """
     Takes in a single review and checks it against the positive and negative data lists to generate the sentiment
+    :param neg_prior_probability:
+    :param pos_prior_probability:
+    :param neg_dict_TOTAL:
+    :param pos_dict_TOTAL:
     :param review_data: the review dictionary of the review we are creating the sentiment for
     :param test_data_pos: the positive dictionary of training data to check against for the ML
     :param test_data_neg: the negative dictionary of training data to check against for the ML
     :return: will return the score of sentiment for that particular review
              (0 for negative 1 for positive) -1 is a placeholder for now
     """
+
+    positive_running_total = 1
+    negative_running_total = 1
+    num_blackbox_keys = len(review_data.keys())  # number to add to total to account for blackboxing out 0 values
+    alpha = 1  # value to blackbox values to negate * 0 possibilities
+
     for key in review_data.keys():
         print("\"" + key + "\"" + " value -> " + str(review_data.get(key)))  # get value of that key in the dict
 
+        # Naives Bayes P(# of time happened in training data / total # in data) ^ # of times happened in data being
+        # tested, then * to all other keys probabilities * the prior probability.
         if key in test_data_pos.keys():
             print("pos HIT")
-            print(test_data_pos.get(key))  # get value of that key in the dict
+            value_of_words_pos = pow(((test_data_pos.get(key) + alpha) / (pos_dict_TOTAL + num_blackbox_keys)),
+                                     review_data.get(key))  # get value of that key in the dict
+            positive_running_total *= value_of_words_pos
+        else:
+            print("NO pos")
+            value_of_words_pos = pow((alpha / (pos_dict_TOTAL + num_blackbox_keys)),
+                                     review_data.get(key))  # get value of that key in the dict
+            positive_running_total *= value_of_words_pos
+
         if key in test_data_neg.keys():
             print("neg HIT")
-            print(test_data_neg.get(key))  # get value of that key in the dict
+            value_of_words_neg = pow(((test_data_neg.get(key) + alpha) / (neg_dict_TOTAL + num_blackbox_keys)),
+                                     review_data.get(key))  # get value of that key in the dict
+            negative_running_total *= value_of_words_neg
         else:
-            print("no Key need a black box (artificial value to not have * or / by Zero errors)")
+            print("NO neg")
+            value_of_words_neg = pow((alpha / (neg_dict_TOTAL + num_blackbox_keys)),
+                                     review_data.get(key))  # get value of that key in the dict
+            negative_running_total *= value_of_words_neg
 
-    sentiment_score = -1
+    print(positive_running_total)
+    pos_result = pos_prior_probability * positive_running_total
+    print(negative_running_total)
+    neg_result = neg_prior_probability * negative_running_total
+
+    if pos_result > neg_result:
+        sentiment_score = 1
+    else:
+        sentiment_score = 0
 
     return sentiment_score
 
@@ -94,15 +128,18 @@ def main():
     neg_prior_probability = (neg_dict_TOTAL / testdata_TOTAL)  # .4958
 
     # grabbing a single review to use as a test to create the algorithm
-    review_test = sentiment.select_a_review("rw1985329")
+    review_test = sentiment.select_a_review("\'rw0965166\'")
     review_test_clean = data_cleaning(review_test)
     review_test = dict(generate_histogram(review_test_clean))
+
+    print(review_test)
 
     # testing searching in the positive and negative lists for matching keys
 
     # method below will return the score of the review to then be pushed into the DB
 
-    print(sentiment_generator(review_test, pos_dict, neg_dict))
+    print(sentiment_generator(review_test, pos_dict, neg_dict, pos_dict_TOTAL, neg_dict_TOTAL, pos_prior_probability,
+                              neg_prior_probability))
 
     # after compiling matching keys we can then get probabilities and do the algorithm :D
     # setting the value into a after-ML Table in the DB and iterate though the entire pre-ML data set
