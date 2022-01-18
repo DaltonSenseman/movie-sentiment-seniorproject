@@ -7,9 +7,16 @@ from flask import Flask
 from flask import jsonify
 from flask import request
 from Database_Interaction.database_manager import SQLManager
+import nltk
+from collections import Counter
+from nltk.corpus import stopwords
+
+
+
 
 app = Flask(__name__)
 
+cached_stopwords = stopwords.words('english') #+ ['show', 'season', 'much', 'really', 'episode', 'even', 'would']
 
 @app.route('/get', methods=['GET'])
 def specific_review():
@@ -20,7 +27,7 @@ def specific_review():
     review_data = {'name': test_review[1].strip('\'').replace('\"', '\''),
                    'date': test_review[5].strip('\'').replace('\"', '\''),
                    'title': test_review[4].strip('\'').replace('\"', '\''),
-                   'review': test_review[7].strip('\'').replace('\"', '\'')}
+                   'review': test_review[7].strip('\'').replace('\"', '\''),}
 
     sql_manager.close_connection()
     return jsonify(review_data)
@@ -32,13 +39,18 @@ def reviews():
     sql_manager = SQLManager()
     response = sql_manager.display_review_results(id)
 
+
+    review_tokens = []
     reviews = []
     for review in response:
+        review_tokens += ([x for x in review[7].strip('\'').replace('\"', '\'').split() if x.lower() not in cached_stopwords])
         review_data = {'name': review[1].strip('\'').replace('\"', '\''),
                        'date': review[5].strip('\'').replace('\"', '\''),
                        'title': review[4].strip('\'').replace('\"', '\''),
                        'review': review[7].strip('\'').replace('\"', '\'')}
         reviews.append(review_data)
+
+    reviews.append({'review_tokens': Counter(review_tokens).most_common(20)})
 
     sql_manager.close_connection()
     return jsonify(reviews)
