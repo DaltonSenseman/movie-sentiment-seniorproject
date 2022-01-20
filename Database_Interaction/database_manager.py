@@ -83,6 +83,13 @@ class SQLManager(object):
         results = cur.fetchall()
         return results
 
+    def select_a_movie(self,id):
+        cur = self.conn.cursor()
+        cur.execute("SELECT * from movies WHERE ref_num = ?", (str(id),))
+
+        results = cur.fetchall()
+        return results
+
     def display_user(self, name):
         cur = self.conn.cursor()
         name = '\'' + name + '\''
