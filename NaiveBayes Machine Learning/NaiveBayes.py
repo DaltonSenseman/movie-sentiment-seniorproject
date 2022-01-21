@@ -57,8 +57,13 @@ def create_dictionary(database_connection, value):
 
 
 def remove_stopwords(dictionary):
+    """
+    Takes in a dictionary and compares it to a list of stopwords, if the stopword is in the dictionary it is removed.
+    :param dictionary: a dictionary of words to be checked in the tuple form (word : #)
+    :return: the dictionary that has the words in the stopwords list removed from it. 
+    """
     stopwords_list = set(stopwords.words('english'))
-    for word in dictionary.copy():
+    for word in dictionary.copy():  # copies the dictionary so the indexes don't change while popping out words
         if word in stopwords_list:
             dictionary.pop(word)
 
