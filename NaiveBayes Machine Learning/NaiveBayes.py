@@ -10,6 +10,7 @@ from collections import Counter
 
 from Database_Interaction.database_manager import SQLManager
 import re
+from nltk.corpus import stopwords
 
 
 def data_cleaning(data):
@@ -50,6 +51,17 @@ def create_dictionary(database_connection, value):
     clean = data_cleaning(database_connection.select_all_sentiment(value))
     new_list = generate_histogram(clean)
     dictionary = dict(new_list)
+    clean_dictionary = remove_stopwords(dictionary)
+
+    return clean_dictionary
+
+
+def remove_stopwords(dictionary):
+    stopwords_list = set(stopwords.words('english'))
+    for word in dictionary.copy():
+        if word in stopwords_list:
+            dictionary.pop(word)
+
     return dictionary
 
 
@@ -70,6 +82,7 @@ def sentiment_generator(review_data, test_data_pos, test_data_neg, pos_dict_TOTA
 
     positive_running_total = 1
     negative_running_total = 1
+
     num_blackbox_keys = len(review_data.keys())  # number to add to total to account for blackboxing out 0 values
     alpha = 1  # value to blackbox values to negate * 0 possibilities
 
@@ -105,6 +118,9 @@ def sentiment_generator(review_data, test_data_pos, test_data_neg, pos_dict_TOTA
     print(negative_running_total)
     neg_result = neg_prior_probability * negative_running_total
 
+    if (pos_result == 0) or (neg_result == 0):
+        raise Exception("Encountered a result that overflowed the running total % float value of the data set")
+
     if pos_result > neg_result:
         sentiment_score = 1
     else:
@@ -122,15 +138,15 @@ def main():
     # total number of words in the entire dictionary for use in making fractional probability
     pos_dict_TOTAL = sum(pos_dict.values())  # total number of words 5,702,647
     neg_dict_TOTAL = sum(neg_dict.values())  # total  number of words 5,609,804
-    testdata_TOTAL = (pos_dict_TOTAL + neg_dict_TOTAL)  # total data points(words) 113,124,451
+    testdata_TOTAL = (pos_dict_TOTAL + neg_dict_TOTAL)  # total data points(words) 13,124,451
 
     pos_prior_probability = (pos_dict_TOTAL / testdata_TOTAL)  # .5041
     neg_prior_probability = (neg_dict_TOTAL / testdata_TOTAL)  # .4958
 
     # grabbing a single review to use as a test to create the algorithm
-    review_test = sentiment.select_a_review("\'rw0965166\'")
+    review_test = sentiment.select_a_review("\'rw6456087\'")
     review_test_clean = data_cleaning(review_test)
-    review_test = dict(generate_histogram(review_test_clean))
+    review_test = remove_stopwords(dict(generate_histogram(review_test_clean)))
 
     print(review_test)
 
