@@ -150,18 +150,28 @@ def main():
     neg_prior_probability = math.log((neg_dict_TOTAL / testdata_TOTAL))  # .4958
 
     # grabbing a single review to use as a test to create the algorithm
-    review_test = sentiment.select_a_review("\'rw6205775\'")
-    review_test_clean = data_cleaning(review_test)
-    review_test = remove_stopwords(dict(generate_histogram(review_test_clean)))
+    # review_test = sentiment.select_a_review("\'rw6205775\'")
+    # review_test_clean = data_cleaning(review_test)
+    # review_test = remove_stopwords(dict(generate_histogram(review_test_clean)))
 
-    print(review_test)
+    # print(review_test)
+
+    # Looping though the DB grabbing
+    movie_list_to_process = sentiment.select_all_reviews_to_list()
+    for i in movie_list_to_process:  # steps though a list of lists of all teh reviews
+        review_test_clean = data_cleaning([i[7]])  # grabs the 7th index containing the review cast's to a list to clean
+        review_test = remove_stopwords(dict(generate_histogram(review_test_clean)))
+        print(review_test)
+        print(
+            sentiment_generator(review_test, pos_dict, neg_dict, pos_dict_TOTAL, neg_dict_TOTAL, pos_prior_probability,
+                                neg_prior_probability))
 
     # testing searching in the positive and negative lists for matching keys
 
     # method below will return the score of the review to then be pushed into the DB
 
-    print(sentiment_generator(review_test, pos_dict, neg_dict, pos_dict_TOTAL, neg_dict_TOTAL, pos_prior_probability,
-                              neg_prior_probability))
+    # print(sentiment_generator(review_test, pos_dict, neg_dict, pos_dict_TOTAL, neg_dict_TOTAL, pos_prior_probability,
+    #                         neg_prior_probability))
 
     # after compiling matching keys we can then get probabilities and do the algorithm :D
     # setting the value into a after-ML Table in the DB and iterate though the entire pre-ML data set
