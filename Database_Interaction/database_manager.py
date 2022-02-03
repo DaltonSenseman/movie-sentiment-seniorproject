@@ -51,6 +51,13 @@ class SQLManager(object):
         results = cur.fetchall()
         return results
 
+    def select_all_reviews_to_list(self):
+        cur = self.conn.cursor()
+        cur.execute("SELECT * FROM review")
+        review_list = cur.fetchall()
+
+        return review_list
+
     def select_a_review(self, choice):
         cur = self.conn.cursor()
         cur.execute("SELECT review_detail FROM review WHERE review_id = ?", (choice,))
