@@ -10,6 +10,7 @@ from collections import Counter
 
 from Database_Interaction.database_manager import SQLManager
 import re
+import math
 from nltk.corpus import stopwords
 
 
@@ -60,7 +61,7 @@ def remove_stopwords(dictionary):
     """
     Takes in a dictionary and compares it to a list of stopwords, if the stopword is in the dictionary it is removed.
     :param dictionary: a dictionary of words to be checked in the tuple form (word : #)
-    :return: the dictionary that has the words in the stopwords list removed from it. 
+    :return: the dictionary that has the words in the stopwords list removed from it.
     """
     stopwords_list = set(stopwords.words('english'))
     for word in dictionary.copy():  # copies the dictionary so the indexes don't change while popping out words
@@ -100,28 +101,28 @@ def sentiment_generator(review_data, test_data_pos, test_data_neg, pos_dict_TOTA
             print("pos HIT")
             value_of_words_pos = pow(((test_data_pos.get(key) + alpha) / (pos_dict_TOTAL + num_blackbox_keys)),
                                      review_data.get(key))  # get value of that key in the dict
-            positive_running_total *= value_of_words_pos
+            positive_running_total += math.log(value_of_words_pos)
         else:
             print("NO pos")
             value_of_words_pos = pow((alpha / (pos_dict_TOTAL + num_blackbox_keys)),
                                      review_data.get(key))  # get value of that key in the dict
-            positive_running_total *= value_of_words_pos
+            positive_running_total += math.log(value_of_words_pos)
 
         if key in test_data_neg.keys():
             print("neg HIT")
             value_of_words_neg = pow(((test_data_neg.get(key) + alpha) / (neg_dict_TOTAL + num_blackbox_keys)),
                                      review_data.get(key))  # get value of that key in the dict
-            negative_running_total *= value_of_words_neg
+            negative_running_total += math.log(value_of_words_neg)
         else:
             print("NO neg")
             value_of_words_neg = pow((alpha / (neg_dict_TOTAL + num_blackbox_keys)),
                                      review_data.get(key))  # get value of that key in the dict
-            negative_running_total *= value_of_words_neg
+            negative_running_total += math.log(value_of_words_neg)
 
     print(positive_running_total)
-    pos_result = pos_prior_probability * positive_running_total
+    pos_result = pos_prior_probability + positive_running_total
     print(negative_running_total)
-    neg_result = neg_prior_probability * negative_running_total
+    neg_result = neg_prior_probability + negative_running_total
 
     if (pos_result == 0) or (neg_result == 0):
         raise Exception("Encountered a result that overflowed the running total % float value of the data set")
@@ -145,11 +146,11 @@ def main():
     neg_dict_TOTAL = sum(neg_dict.values())  # total  number of words 5,609,804
     testdata_TOTAL = (pos_dict_TOTAL + neg_dict_TOTAL)  # total data points(words) 13,124,451
 
-    pos_prior_probability = (pos_dict_TOTAL / testdata_TOTAL)  # .5041
-    neg_prior_probability = (neg_dict_TOTAL / testdata_TOTAL)  # .4958
+    pos_prior_probability = math.log((pos_dict_TOTAL / testdata_TOTAL))  # .5041
+    neg_prior_probability = math.log((neg_dict_TOTAL / testdata_TOTAL))  # .4958
 
     # grabbing a single review to use as a test to create the algorithm
-    review_test = sentiment.select_a_review("\'rw6456087\'")
+    review_test = sentiment.select_a_review("\'rw6205775\'")
     review_test_clean = data_cleaning(review_test)
     review_test = remove_stopwords(dict(generate_histogram(review_test_clean)))
 
