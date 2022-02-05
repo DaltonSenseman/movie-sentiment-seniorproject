@@ -14,7 +14,7 @@ class SQLManager(object):
 
     def __init__(self):
         self.conn = None
-        self.dbPath = 'Unprocessed Data Loader/review_database.db'
+        self.dbPath = 'review_database.db'
         self.create_connection()
 
     def create_connection(self):
@@ -65,9 +65,37 @@ class SQLManager(object):
         results = cur.fetchall()
         return results
 
+    def insert_processed_review(self, review, sentiment):
+        cur = self.conn.cursor()
+        print(review)
+        print(sentiment)
+        cur.execute(f"INSERT OR IGNORE INTO proc_review VALUES (?,?,?,?,?,?,?,?,?,?,?);", (review[0], review[1],
+                                                                        review[2], review[3],
+                                                                        review[4], review[5],
+                                                                        review[6], review[7],
+                                                                        review[8], review[9], sentiment))
+        self.conn.commit()
+
+    def init_proc_table(self):
+        cur = self.conn.cursor()
+        processed_table_creation = "CREATE TABLE IF NOT EXISTS proc_review (review_id varchar PRIMARY KEY," \
+                                    "reviewer varchar," \
+                                    "movie_id int," \
+                                    "rating int," \
+                                    "review_summary varchar," \
+                                    "review_date varchar," \
+                                    "spoiler_tag boolean, " \
+                                    "review_detail varchar," \
+                                    "helpful int," \
+                                    "not_helpful int," \
+                                    "sentiment_score float," \
+                                    "FOREIGN KEY(movie_id) REFERENCES movie(ref_num));"
+        cur.execute(processed_table_creation)
+
+    # API Usage
     def display_a_review(self, choice):
         cur = self.conn.cursor()
-        cur.execute("SELECT * FROM review WHERE review_id = ?", (choice,))
+        cur.execute("SELECT * FROM proc_review WHERE review_id = ?", (choice,))
 
         results = cur.fetchall()
         return results
@@ -75,7 +103,7 @@ class SQLManager(object):
     def display_review_results(self, id):
         cur = self.conn.cursor()
 
-        cur.execute("select * from review where movie_id = ?", (str(id),))
+        cur.execute("select * from proc_review where movie_id = ?", (str(id),))
 
         results = cur.fetchall()
         return results
@@ -101,7 +129,7 @@ class SQLManager(object):
         cur = self.conn.cursor()
         name = '\'' + name + '\''
         print(name)
-        cur.execute("SELECT *, movies.name from review INNER JOIN movies on movies.ref_num=review.movie_id WHERE review.reviewer = ?", (name,))
+        cur.execute("SELECT *, movies.name from proc_review INNER JOIN movies on movies.ref_num=proc_review.movie_id WHERE proc_review.reviewer = ?", (name,))
 
         results = cur.fetchall()
 

@@ -33,7 +33,8 @@ def specific_review():
     review_data = {'name': test_review[1].strip('\'').replace('\"', '\''),
                    'date': test_review[5].strip('\'').replace('\"', '\''),
                    'title': test_review[4].strip('\'').replace('\"', '\''),
-                   'review': test_review[7].strip('\'').replace('\"', '\''), }
+                   'review': test_review[7].strip('\'').replace('\"', '\''),
+                   'sentiment': test_review[10]}
 
     sql_manager.close_connection()
     return jsonify(review_data)
@@ -57,7 +58,8 @@ def reviews():
         review_data = {'name': review[1].strip('\'').replace('\"', '\''),
                        'date': review[5].strip('\'').replace('\"', '\''),
                        'title': review[4].strip('\'').replace('\"', '\''),
-                       'review': review[7].strip('\'').replace('\"', '\'')}
+                       'review': review[7].strip('\'').replace('\"', '\''),
+                       'sentiment': review[10]}
         reviews.append(review_data)
 
     counter = Counter(review_tokens)
@@ -99,7 +101,8 @@ def user():
                        'review_summary': review[4],
                        'review_date': review[5],
                        'review': review[7],
-                       'rating': review[3]}
+                       'rating': review[3],
+                       'sentiment': review[10]}
         reviews.append(review_data)
 
     sql_manager.close_connection()
