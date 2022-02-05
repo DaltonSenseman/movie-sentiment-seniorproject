@@ -5,7 +5,7 @@
 # Author: Dalton Senseman
 # version 0.1a
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-
+import sys
 from collections import Counter
 
 from Database_Interaction.database_manager import SQLManager
@@ -71,7 +71,7 @@ def remove_stopwords(dictionary):
     return dictionary
 
 
-def sentiment_generator(review_data, test_data_pos, test_data_neg, pos_dict_TOTAL, neg_dict_TOTAL,
+def sentiment_generator(review_full,review_data, test_data_pos, test_data_neg, pos_dict_TOTAL, neg_dict_TOTAL,
                         pos_prior_probability, neg_prior_probability):
     """
     Takes in a single review and checks it against the positive and negative data lists to generate the sentiment
@@ -93,53 +93,67 @@ def sentiment_generator(review_data, test_data_pos, test_data_neg, pos_dict_TOTA
     alpha = 1  # value to blackbox values to negate * 0 possibilities
 
     for key in review_data.keys():
-        print("\"" + key + "\"" + " value -> " + str(review_data.get(key)))  # get value of that key in the dict
+        #print("\"" + key + "\"" + " value -> " + str(review_data.get(key)))  # get value of that key in the dict
 
         # Naives Bayes P(# of time happened in training data / total # in data) ^ # of times happened in data being
         # tested, then * to all other keys probabilities * the prior probability.
         if key in test_data_pos.keys():
-            print("pos HIT")
+            #print("pos HIT")
             value_of_words_pos = pow(((test_data_pos.get(key) + alpha) / (pos_dict_TOTAL + num_blackbox_keys)),
                                      review_data.get(key))  # get value of that key in the dict
-            positive_running_total += math.log(value_of_words_pos)
+            try:
+                positive_running_total += math.log(value_of_words_pos)
+            except ValueError as e:
+                print(review_full)
+                print("ERROR HERE %.40f" %(value_of_words_pos))
+                sys.exit()
         else:
-            print("NO pos")
+            #print("NO pos")
             value_of_words_pos = pow((alpha / (pos_dict_TOTAL + num_blackbox_keys)),
                                      review_data.get(key))  # get value of that key in the dict
             positive_running_total += math.log(value_of_words_pos)
 
         if key in test_data_neg.keys():
-            print("neg HIT")
+            #print("neg HIT")
             value_of_words_neg = pow(((test_data_neg.get(key) + alpha) / (neg_dict_TOTAL + num_blackbox_keys)),
                                      review_data.get(key))  # get value of that key in the dict
-            negative_running_total += math.log(value_of_words_neg)
+            try:
+                negative_running_total += math.log(value_of_words_neg)
+            except ValueError as e:
+                print(review_full)
+                print("ERROR HERE %.40f" %(value_of_words_neg))
+                sys.exit()
         else:
-            print("NO neg")
+            #print("NO neg")
             value_of_words_neg = pow((alpha / (neg_dict_TOTAL + num_blackbox_keys)),
                                      review_data.get(key))  # get value of that key in the dict
             negative_running_total += math.log(value_of_words_neg)
 
-    print(positive_running_total)
+    #print(positive_running_total)
     pos_result = pos_prior_probability + positive_running_total
-    print(negative_running_total)
+    #print(negative_running_total)
     neg_result = neg_prior_probability + negative_running_total
+
+    #print("Cumulative percentage: " + str(((neg_result - (pos_result) )/ neg_result)))
 
     if (pos_result == 0) or (neg_result == 0):
         raise Exception("Encountered a result that overflowed the running total % float value of the data set")
 
-    if pos_result > neg_result:
-        sentiment_score = 1
-    else:
-        sentiment_score = 0
+    #if pos_result > neg_result:
+     #   sentiment_score = 1
+   # else:
+       # sentiment_score = 0
+
+    sentiment_score = (neg_result - pos_result) / neg_result
 
     return sentiment_score
 
 
 def main():
-    sentiment = SQLManager()
+    db_manager = SQLManager()
 
-    neg_dict = create_dictionary(sentiment, 0)
-    pos_dict = create_dictionary(sentiment, 1)
+    neg_dict = create_dictionary(db_manager, 0)
+    pos_dict = create_dictionary(db_manager, 1)
 
     # total number of words in the entire dictionary for use in making fractional probability
     pos_dict_TOTAL = sum(pos_dict.values())  # total number of words 5,702,647
@@ -156,15 +170,16 @@ def main():
 
     # print(review_test)
 
+    db_manager.init_proc_table()
+
     # Looping though the DB grabbing
-    movie_list_to_process = sentiment.select_all_reviews_to_list()
-    for i in movie_list_to_process:  # steps though a list of lists of all teh reviews
-        review_test_clean = data_cleaning([i[7]])  # grabs the 7th index containing the review cast's to a list to clean
+    movie_list_to_process = db_manager.select_all_reviews_to_list()
+    for review in movie_list_to_process:  # steps though a list of lists of all teh reviews
+        review_test_clean = data_cleaning([review[7]])  # grabs the 7th index containing the review cast's to a list to clean
         review_test = remove_stopwords(dict(generate_histogram(review_test_clean)))
-        print(review_test)
-        print(
-            sentiment_generator(review_test, pos_dict, neg_dict, pos_dict_TOTAL, neg_dict_TOTAL, pos_prior_probability,
-                                neg_prior_probability))
+
+        sentiment_score = sentiment_generator(review_test_clean,review_test, pos_dict, neg_dict, pos_dict_TOTAL, neg_dict_TOTAL, pos_prior_probability,neg_prior_probability)
+        db_manager.insert_processed_review(review, sentiment_score)
 
     # testing searching in the positive and negative lists for matching keys
 
