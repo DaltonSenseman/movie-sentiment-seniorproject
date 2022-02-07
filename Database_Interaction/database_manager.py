@@ -12,9 +12,9 @@ from sqlite3 import Error
 
 class SQLManager(object):
 
-    def __init__(self):
+    def __init__(self, path):
         self.conn = None
-        self.dbPath = 'review_database.db'
+        self.dbPath = path
         self.create_connection()
 
     def create_connection(self):

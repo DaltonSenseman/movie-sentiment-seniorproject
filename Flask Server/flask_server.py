@@ -27,7 +27,7 @@ cached_stopwords = stopwords.words('english') + data
 @app.route('/get', methods=['GET'])
 def specific_review():
     review_id = request.args.get('review_id')
-    sql_manager = SQLManager()
+    sql_manager = SQLManager('processed_review_database')
     test_review = sql_manager.display_a_review("\'" + review_id + "\'")[0]
 
     review_data = {'name': test_review[1].strip('\'').replace('\"', '\''),
@@ -43,7 +43,7 @@ def specific_review():
 @app.route('/reviews', methods=['GET'])
 def reviews():
     id = request.args.get('id')
-    sql_manager = SQLManager()
+    sql_manager = SQLManager('processed_review_database')
     response = sql_manager.display_review_results(id)
     movie_title = sql_manager.select_a_movie(id)[0][1].lower()
     movie_title = re.sub(r'[^\w\s]', '', movie_title)
@@ -74,7 +74,7 @@ def reviews():
 @app.route('/search', methods=['GET'])
 def search():
     title = request.args.get('title').replace("%20", " ")
-    sql_manager = SQLManager()
+    sql_manager = SQLManager('processed_review_database')
     response = sql_manager.search_movies(title)
 
     movies = []
@@ -90,7 +90,7 @@ def search():
 @app.route('/user', methods=['GET'])
 def user():
     name = request.args.get('name').replace("%20", " ")
-    sql_manager = SQLManager()
+    sql_manager = SQLManager('processed_review_database')
     response = sql_manager.display_user(name)
 
     reviews = []

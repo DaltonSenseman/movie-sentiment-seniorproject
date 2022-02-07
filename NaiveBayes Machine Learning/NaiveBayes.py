@@ -13,6 +13,8 @@ import re
 import math
 from nltk.corpus import stopwords
 
+class ReviewError(Exception):
+    pass
 
 def data_cleaning(data):
     """
@@ -101,33 +103,30 @@ def sentiment_generator(review_full,review_data, test_data_pos, test_data_neg, p
             #print("pos HIT")
             value_of_words_pos = pow(((test_data_pos.get(key) + alpha) / (pos_dict_TOTAL + num_blackbox_keys)),
                                      review_data.get(key))  # get value of that key in the dict
-            try:
-                positive_running_total += math.log(value_of_words_pos)
-            except ValueError as e:
-                print(review_full)
-                print("ERROR HERE %.40f" %(value_of_words_pos))
-                sys.exit()
+
         else:
             #print("NO pos")
             value_of_words_pos = pow((alpha / (pos_dict_TOTAL + num_blackbox_keys)),
                                      review_data.get(key))  # get value of that key in the dict
+
+        try:
             positive_running_total += math.log(value_of_words_pos)
+        except ValueError as e:
+            raise ReviewError
 
         if key in test_data_neg.keys():
             #print("neg HIT")
             value_of_words_neg = pow(((test_data_neg.get(key) + alpha) / (neg_dict_TOTAL + num_blackbox_keys)),
                                      review_data.get(key))  # get value of that key in the dict
-            try:
-                negative_running_total += math.log(value_of_words_neg)
-            except ValueError as e:
-                print(review_full)
-                print("ERROR HERE %.40f" %(value_of_words_neg))
-                sys.exit()
+
         else:
             #print("NO neg")
             value_of_words_neg = pow((alpha / (neg_dict_TOTAL + num_blackbox_keys)),
                                      review_data.get(key))  # get value of that key in the dict
+        try:
             negative_running_total += math.log(value_of_words_neg)
+        except ValueError as e:
+            raise ReviewError
 
     #print(positive_running_total)
     pos_result = pos_prior_probability + positive_running_total
@@ -150,7 +149,7 @@ def sentiment_generator(review_full,review_data, test_data_pos, test_data_neg, p
 
 
 def main():
-    db_manager = SQLManager()
+    db_manager = SQLManager('review_database.db')
 
     neg_dict = create_dictionary(db_manager, 0)
     pos_dict = create_dictionary(db_manager, 1)
@@ -170,16 +169,23 @@ def main():
 
     # print(review_test)
 
-    db_manager.init_proc_table()
+
 
     # Looping though the DB grabbing
     movie_list_to_process = db_manager.select_all_reviews_to_list()
+
+    db_manager = SQLManager('processed_review_database.db')
+    db_manager.init_proc_table()
     for review in movie_list_to_process:  # steps though a list of lists of all teh reviews
         review_test_clean = data_cleaning([review[7]])  # grabs the 7th index containing the review cast's to a list to clean
         review_test = remove_stopwords(dict(generate_histogram(review_test_clean)))
 
-        sentiment_score = sentiment_generator(review_test_clean,review_test, pos_dict, neg_dict, pos_dict_TOTAL, neg_dict_TOTAL, pos_prior_probability,neg_prior_probability)
-        db_manager.insert_processed_review(review, sentiment_score)
+        try:
+            sentiment_score = sentiment_generator(review_test_clean,review_test, pos_dict, neg_dict, pos_dict_TOTAL, neg_dict_TOTAL, pos_prior_probability,neg_prior_probability)
+            db_manager.insert_processed_review(review, sentiment_score)
+        except ReviewError:
+            print("Review Error, entry not added to table.")
+
 
     # testing searching in the positive and negative lists for matching keys
 
