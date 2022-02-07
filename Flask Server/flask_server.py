@@ -53,7 +53,7 @@ def reviews():
     overall_sentiment = 0
     for review in response:
         removables = cached_stopwords + movie_title.split()
-        review_tokens += ([re.sub(r'[^\w\s]', '', x) for x in review[7].strip('\'').replace('\"', '\'').split()
+        review_tokens += ([re.sub(r'[^\w\s]', '', x.lower()) for x in review[7].strip('\'').replace('\"', '\'').split()
                            + review[4].strip('\'').replace('\"', '\'').split()
                            if (re.sub(r'[^\w\s]', '', x.lower()) not in removables)])
         review_data = {'name': review[1].strip('\'').replace('\"', '\''),

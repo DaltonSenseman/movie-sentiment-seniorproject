@@ -76,6 +76,11 @@ class SQLManager(object):
                                                                         review[8], review[9], sentiment))
         self.conn.commit()
 
+    def update_processed_review(self, review):
+        cur = self.conn.cursor()
+        print(review)
+        cur.execute(f"UPDATE  proc_review set review_detail = ? WHERE review_id = ?;", (review[7], review[0]))
+        self.conn.commit()
     def init_proc_table(self):
         cur = self.conn.cursor()
         processed_table_creation = "CREATE TABLE IF NOT EXISTS proc_review (review_id varchar PRIMARY KEY," \
