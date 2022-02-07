@@ -50,6 +50,7 @@ def reviews():
 
     review_tokens = []
     reviews = []
+    overall_sentiment = 0
     for review in response:
         removables = cached_stopwords + movie_title.split()
         review_tokens += ([re.sub(r'[^\w\s]', '', x) for x in review[7].strip('\'').replace('\"', '\'').split()
@@ -61,11 +62,14 @@ def reviews():
                        'review': review[7].strip('\'').replace('\"', '\''),
                        'sentiment': review[10]}
         reviews.append(review_data)
+        overall_sentiment += review[10]
 
     counter = Counter(review_tokens)
     del counter[""]
 
-    reviews.append({'review_tokens': counter.most_common(20)})
+    reviews.append({'Review Tokens': counter.most_common(20)})
+
+    reviews.append({'Overall Sentiment': overall_sentiment})
 
     sql_manager.close_connection()
     return jsonify(reviews)
@@ -94,6 +98,7 @@ def user():
     response = sql_manager.display_user(name)
 
     reviews = []
+
     for review in response:
         print(review)
         review_data = {'review_id': review[0],
@@ -104,6 +109,8 @@ def user():
                        'rating': review[3],
                        'sentiment': review[10]}
         reviews.append(review_data)
+
+
 
     sql_manager.close_connection()
     return jsonify(reviews)
