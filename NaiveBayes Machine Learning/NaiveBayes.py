@@ -8,6 +8,8 @@
 import sys
 from collections import Counter
 
+import nltk
+
 from Database_Interaction.database_manager import SQLManager
 
 import re
@@ -154,7 +156,11 @@ def sentiment_generator(review_full, review_data, test_data_pos, test_data_neg, 
 def main():
     db_manager = SQLManager('review_database.db')
 
-    neg_dict = create_dictionary(db_manager, 0)
+    try:
+        neg_dict = create_dictionary(db_manager, 0)
+    except LookupError:
+        nltk.download('stopwords')
+        neg_dict = create_dictionary(db_manager, 0)
     pos_dict = create_dictionary(db_manager, 1)
 
     # total number of words in the entire dictionary for use in making fractional probability
@@ -184,9 +190,9 @@ def main():
 
         try:
             sentiment_score = sentiment_generator(review_test_clean, review_test, pos_dict, neg_dict, pos_dict_TOTAL,
-                                                  neg_dict_TOTAL, pos_prior_probability, neg_prior_probability)
+                                                 neg_dict_TOTAL, pos_prior_probability, neg_prior_probability)
             db_manager.insert_processed_review(review, sentiment_score)
-            #db_manager.update_processed_review(review)
+
         except ReviewError:
             print("Review Error, entry not added to table.")
 
