@@ -40,7 +40,7 @@ def specific_review():
     return jsonify(review_data)
 
 
-@app.route('/reviews', methods=['GET'])
+@app.route('/reviewlist', methods=['GET'])
 def reviews():
     id = request.args.get('id')
     sql_manager = SQLManager('processed_review_database')
