@@ -24,7 +24,7 @@ app = Flask(__name__)
 cached_stopwords = stopwords.words('english') + data
 
 
-@app.route('/review', methods=['GET'])
+@app.route('/reviews', methods=['GET'])
 def specific_review():
     review_id = request.args.get('review_id')
     sql_manager = SQLManager('processed_review_database')
@@ -40,7 +40,7 @@ def specific_review():
     return jsonify(review_data)
 
 
-@app.route('/reviewlist', methods=['GET'])
+@app.route('/reviewlists', methods=['GET'])
 def reviews():
     id = request.args.get('id')
     sql_manager = SQLManager('processed_review_database')
@@ -75,7 +75,7 @@ def reviews():
     return jsonify(reviews)
 
 
-@app.route('/search', methods=['GET'])
+@app.route('/movies', methods=['GET'])
 def search():
     title = request.args.get('title').replace("%20", " ")
     sql_manager = SQLManager('processed_review_database')
@@ -91,7 +91,7 @@ def search():
     return jsonify(movies)
 
 
-@app.route('/user', methods=['GET'])
+@app.route('/users', methods=['GET'])
 def user():
     name = request.args.get('name').replace("%20", " ")
     sql_manager = SQLManager('processed_review_database')
