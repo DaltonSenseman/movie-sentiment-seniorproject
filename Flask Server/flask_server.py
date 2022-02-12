@@ -24,7 +24,7 @@ app = Flask(__name__)
 cached_stopwords = stopwords.words('english') + data
 
 
-@app.route('/get', methods=['GET'])
+@app.route('/review', methods=['GET'])
 def specific_review():
     review_id = request.args.get('review_id')
     sql_manager = SQLManager('processed_review_database')
