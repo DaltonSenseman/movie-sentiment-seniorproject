@@ -42,7 +42,7 @@ def specific_review():
 
 @app.route('/reviewlists', methods=['GET'])
 def reviews():
-    id = request.args.get('id')
+    id = request.args.get('movie_id')
     sql_manager = SQLManager('processed_review_database')
     response = sql_manager.display_review_results(id)
     movie_title = sql_manager.select_a_movie(id)[0][1].lower()
