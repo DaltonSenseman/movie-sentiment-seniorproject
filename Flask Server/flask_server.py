@@ -27,7 +27,7 @@ cached_stopwords = stopwords.words('english') + data
 @app.route('/reviews', methods=['GET'])
 def specific_review():
     review_id = request.args.get('review_id')
-    sql_manager = SQLManager('processed_review_database')
+    sql_manager = SQLManager()
     test_review = sql_manager.display_a_review("\'" + review_id + "\'")[0]
 
     review_data = {'name': test_review[1].strip('\'').replace('\"', '\''),
@@ -43,7 +43,7 @@ def specific_review():
 @app.route('/reviewlists', methods=['GET'])
 def reviews():
     id = request.args.get('movie_id')
-    sql_manager = SQLManager('processed_review_database')
+    sql_manager = SQLManager()
     response = sql_manager.display_review_results(id)
     movie_title = sql_manager.select_a_movie(id)[0][1].lower()
     movie_title = re.sub(r'[^\w\s]', '', movie_title)
@@ -60,9 +60,9 @@ def reviews():
                        'date': review[5].strip('\'').replace('\"', '\''),
                        'title': review[4].strip('\'').replace('\"', '\''),
                        'review': review[7].strip('\'').replace('\"', '\''),
-                       'sentiment': review[10]}
+                       'sentiment': review[14]}
         reviews.append(review_data)
-        overall_sentiment += review[10]
+        overall_sentiment += review[14]
 
     counter = Counter(review_tokens)
     del counter[""]
@@ -78,7 +78,7 @@ def reviews():
 @app.route('/movies', methods=['GET'])
 def search():
     title = request.args.get('title').replace("%20", " ")
-    sql_manager = SQLManager('processed_review_database')
+    sql_manager = SQLManager()
     response = sql_manager.search_movies(title)
 
     movies = []
@@ -94,7 +94,7 @@ def search():
 @app.route('/users', methods=['GET'])
 def user():
     name = request.args.get('name').replace("%20", " ")
-    sql_manager = SQLManager('processed_review_database')
+    sql_manager = SQLManager()
     response = sql_manager.display_user(name)
 
     reviews = []
@@ -107,7 +107,7 @@ def user():
                        'review_date': review[5],
                        'review': review[7],
                        'rating': review[3],
-                       'sentiment': review[10]}
+                       'sentiment': review[14]}
         reviews.append(review_data)
 
 

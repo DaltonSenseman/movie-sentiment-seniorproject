@@ -18,6 +18,7 @@ from nltk.corpus import stopwords
 
 
 class ReviewError(Exception):
+    print("Invalid Review. Cannot be scored.")
     pass
 
 
@@ -154,7 +155,7 @@ def sentiment_generator(review_full, review_data, test_data_pos, test_data_neg, 
 
 
 def main():
-    db_manager = SQLManager('review_database.db')
+    db_manager = SQLManager()
 
     try:
         neg_dict = create_dictionary(db_manager, 0)
@@ -181,7 +182,7 @@ def main():
     # Looping though the DB grabbing
     movie_list_to_process = db_manager.select_all_reviews_to_list()
 
-    db_manager = SQLManager('processed_review_database')
+    db_manager = SQLManager()
     db_manager.init_proc_table()
     for review in movie_list_to_process:  # steps though a list of lists of all teh reviews
         review_test_clean = data_cleaning(

@@ -12,9 +12,9 @@ from sqlite3 import Error
 
 class SQLManager(object):
 
-    def __init__(self, path):
+    def __init__(self):
         self.conn = None
-        self.dbPath = path
+        self.dbPath = 'review_database.db'
         self.create_connection()
 
     def create_connection(self):
@@ -100,7 +100,8 @@ class SQLManager(object):
     # API Usage
     def display_a_review(self, choice):
         cur = self.conn.cursor()
-        cur.execute("SELECT * FROM proc_review WHERE review_id = ?", (choice,))
+        cur.execute("SELECT *, scores.sentiment_score from review "
+                    "INNER JOIN scores on review.review_id = scores.review_id where review.review_id = ?;", (choice,))
 
         results = cur.fetchall()
         return results
@@ -108,9 +109,12 @@ class SQLManager(object):
     def display_review_results(self, id):
         cur = self.conn.cursor()
 
-        cur.execute("select * from proc_review where movie_id = ?", (str(id),))
+        cur.execute("SELECT *, scores.sentiment_score, movies.name from review "
+                    "INNER JOIN movies on review.movie_id = movies.ref_num "
+                    "INNER JOIN scores on review.review_id = scores.review_id where movie_id = ?;", (str(id),))
 
         results = cur.fetchall()
+        print(results)
         return results
 
     def search_movies(self, title):
@@ -134,7 +138,9 @@ class SQLManager(object):
         cur = self.conn.cursor()
         name = '\'' + name + '\''
         print(name)
-        cur.execute("SELECT *, movies.name from proc_review INNER JOIN movies on movies.ref_num=proc_review.movie_id WHERE proc_review.reviewer = ?", (name,))
+        cur.execute("SELECT *, scores.sentiment_score, movies.name from review "
+                    "INNER JOIN movies on review.movie_id = movies.ref_num "
+                    "INNER JOIN scores on review.review_id = scores.review_id where review.reviewer = ?", (name,))
 
         results = cur.fetchall()
 
