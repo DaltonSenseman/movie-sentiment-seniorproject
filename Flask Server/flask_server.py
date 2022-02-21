@@ -17,8 +17,6 @@ with open('Flask Server/removal_words.csv', newline='') as f:
     reader = csv.reader(f)
     data = [row[0] for row in reader]
 
-
-
 app = Flask(__name__)
 
 cached_stopwords = stopwords.words('english') + data
@@ -56,11 +54,12 @@ def reviews():
         review_tokens += ([re.sub(r'[^\w\s]', '', x.lower()) for x in review[7].strip('\'').replace('\"', '\'').split()
                            + review[4].strip('\'').replace('\"', '\'').split()
                            if (re.sub(r'[^\w\s]', '', x.lower()) not in removables)])
-        review_data = {'name': review[1].strip('\'').replace('\"', '\''),
-                       'date': review[5].strip('\'').replace('\"', '\''),
-                       'title': review[4].strip('\'').replace('\"', '\''),
-                       'review': review[7].strip('\'').replace('\"', '\''),
-                       'sentiment': review[14]}
+        review_data = {'review_id': review[0].strip('\''),
+            'name': review[1].strip('\'').replace('\"', '\''),
+            'date': review[5].strip('\'').replace('\"', '\''),
+            'review_summary': review[4].strip('\'').replace('\"', '\''),
+            'review': review[7].strip('\'').replace('\"', '\''),
+            'sentiment': review[14]}
         reviews.append(review_data)
         overall_sentiment += review[14]
 
@@ -103,14 +102,15 @@ def user():
         print(review)
         review_data = {'review_id': review[0],
                        'movie': review[11],
-                       'review_summary': review[4],
-                       'review_date': review[5],
-                       'review': review[7],
+                       'review_summary': review[4].strip('\'').replace('\"', '\''),
+                       'review_date': review[5].strip('\'').replace('\"', '\''),
+                       'review': review[7].strip('\'').replace('\"', '\''),
                        'rating': review[3],
                        'sentiment': review[14]}
         reviews.append(review_data)
 
-
-
     sql_manager.close_connection()
     return jsonify(reviews)
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port='5000', debug=True)
