@@ -6,6 +6,7 @@
 from flask import Flask
 from flask import jsonify
 from flask import request
+from flask_cors import CORS
 from Database_Interaction.database_manager import SQLManager
 from collections import Counter
 from nltk.corpus import stopwords
@@ -18,6 +19,7 @@ with open('Flask Server/removal_words.csv', newline='') as f:
     data = [row[0] for row in reader]
 
 app = Flask(__name__)
+cors = CORS(app)
 
 cached_stopwords = stopwords.words('english') + data
 
@@ -35,7 +37,9 @@ def specific_review():
                    'sentiment': test_review[10]}
 
     sql_manager.close_connection()
-    return jsonify(review_data)
+    response = jsonify(review_data)
+    response.headers.add('Access-COntrol-Allow Origin', '*')
+    return response
 
 
 @app.route('/reviewlists', methods=['GET'])
@@ -71,10 +75,12 @@ def reviews():
     reviews.append({'Overall Sentiment': overall_sentiment})
 
     sql_manager.close_connection()
-    return jsonify(reviews)
+    response = jsonify(reviews)
+    response.headers.add('Access-COntrol-Allow Origin', '*')
+    return response
 
 
-@app.route('/movies', methods=['GET'])
+@app.route('/moviesearch', methods=['GET'])
 def search():
     title = request.args.get('title').replace("%20", " ")
     sql_manager = SQLManager()
@@ -87,8 +93,27 @@ def search():
         movies.append(movie_data)
 
     sql_manager.close_connection()
-    return jsonify(movies)
+    response = jsonify(movies)
+    response.headers.add('Access-COntrol-Allow Origin', '*')
+    return response
 
+
+@app.route('/movies', methods=['GET'])
+def search():
+    id = request.args.get('ref_num')
+    sql_manager = SQLManager()
+    movie = sql_manager.select_a_movie(id)
+
+
+    movie_data = {'ref_num': movie[0],
+                      'name': movie[1]}
+
+
+    sql_manager.close_connection()
+
+    response = jsonify(movie_data)
+    response.headers.add('Access-Control-Allow Origin', '*')
+    return response
 
 @app.route('/users', methods=['GET'])
 def user():
@@ -110,7 +135,13 @@ def user():
         reviews.append(review_data)
 
     sql_manager.close_connection()
-    return jsonify(reviews)
+    response = jsonify(reviews)
+    response.headers.add('Access-Control-Allow Origin', '*')
+    return response
+
+
+if __name__ =='__main__':
+    app.run(host='0.0.0.0', port=80)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port='5000', debug=True)
