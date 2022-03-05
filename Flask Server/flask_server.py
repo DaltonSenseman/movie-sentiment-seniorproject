@@ -49,12 +49,13 @@ def reviews():
     id = request.args.get('movie_id')
     sql_manager = SQLManager()
     response = sql_manager.display_review_results(id)
-    movie_title = sql_manager.select_a_movie(id)[0][1].lower()
+    movie = sql_manager.select_a_movie(id)[0]
+    movie_title = movie[1].lower()
     movie_title = re.sub(r'[^\w\s]', '', movie_title)
 
     review_tokens = []
     reviews = []
-    overall_sentiment = 0
+    overall_sentiment = movie[2]
     for review in response:
         removables = cached_stopwords + movie_title.split()
         review_tokens += ([re.sub(r'[^\w\s]', '', x.lower()) for x in review[7].strip('\'').replace('\"', '\'').split()
@@ -65,9 +66,8 @@ def reviews():
                        'date': review[5].strip('\''),
                        'title': review[4].strip('\'').replace('\"', '\''),
                        'review': review[7].strip('\'').replace('\"', '\''),
-                       'sentiment': review[14]}
+                       'sentiment': review[16]}
         reviews.append(review_data)
-        overall_sentiment += review[14]
 
     counter = Counter(review_tokens)
     del counter[""]
