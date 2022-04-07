@@ -15,7 +15,7 @@ class SQLManager(object):
 
     def __init__(self):
         self.conn = None
-        self.dbPath = 'C:\\Users\jacwest\\PycharmProjects\\movie-sentiment-seniorproject\\review_database.db'
+        self.dbPath = '/home/ubuntu/reviewsense/FlaskServer/review_database.db' 
         self.create_connection()
 
     def create_connection(self):
@@ -102,33 +102,94 @@ class SQLManager(object):
     # API Usage
     def display_a_review(self, choice):
         cur = self.conn.cursor()
-        cur.execute("SELECT *, scores.sentiment_score from review "
+        cur.execute("SELECT * from review "
                     "INNER JOIN scores on review.review_id = scores.review_id where review.review_id = ?;", (choice,))
 
         results = cur.fetchall()
         return results
 
-    def display_review_results(self, id):
+    def display_review_results(self, id, page, sentiment):
         cur = self.conn.cursor()
+        query = ''
+        if sentiment == 'positive':
+            query = 'AND scores.sentiment_score > 0'
+        elif sentiment == 'negative': 
+            query = 'AND scores.sentiment_score < 0'	
+        if int(page) >=0:
+            offset = (20 * int(page))
+            cur.execute("SELECT * from review INNER JOIN movies on review.movie_id = movies.ref_num "
+                    "INNER JOIN scores on review.review_id = scores.review_id where movie_id = ?"+query + " LIMIT 20 OFFSET ?;", (str(id),offset))
+        else:    
+            cur.execute("SELECT * from review INNER JOIN movies on review.movie_id = movies.ref_num "
+                    "INNER JOIN scores on review.review_id = scores.review_id where movie_id = ?"+query + ";", (str(id),))
 
-        cur.execute("SELECT *, scores.sentiment_score, movies.name from review "
-                    "INNER JOIN movies on review.movie_id = movies.ref_num "
-                    "INNER JOIN scores on review.review_id = scores.review_id where movie_id = ?;", (str(id),))
 
         results = cur.fetchall()
-        print(results)
+        
+        return results
+    
+    def display_sentiment(self, id, page, pos_or_neg):
+        cur = self.conn.cursor()
+        query = "SELECT * from review INNER JOIN movies on review.movie_id = movies.ref_num "\
+		"INNER JOIN scores on review.review_id = scores.review_id where movie_id = ? AND scores.sentiment_score"    
+	
+        if (pos_or_neg == 'positive'):
+            query = query + '> 0'
+        elif (pos_or_neg == 'negative'):
+            query = query + '< 0'
+        offset = (20 * (int(page)))
+        cur.execute(query+ " LIMIT 20 OFFSET ?;", (str(id),offset))
+        results = cur.fetchall()
         return results
 
-    def search_movies(self, title):
+    def sentiment_count(self, id, keyword):
+        cur = self.conn.cursor()
+        query = "SELECT COUNT(*) from review INNER JOIN movies on review.movie_id = movies.ref_num "\
+                "INNER JOIN scores on review.review_id = scores.review_id where movie_id = ?"    
+        if keyword != 'null':
+            query += ' AND (review.review_detail LIKE ? OR review.review_summary LIKE ?) '
+            pos_query = query + 'AND scores.sentiment_score >0;'
+            neg_query = query + 'AND scores.sentiment_score< 0;'
+           
+            print(pos_query)
+            cur.execute(pos_query, (str(id),"%"+keyword+"%", "%"+keyword+"%"))
+            pos_result = cur.fetchall()
+            cur.execute(neg_query, (str(id),"%"+keyword+"%", "%"+keyword+"%"))
+            neg_result = cur.fetchall()
+            print(pos_result)
+        else:
+         
+            pos_query = query + 'AND scores.sentiment_score >0;'
+            neg_query = query + 'AND scores.sentiment_score< 0;'
+        
+            print(pos_query)
+            cur.execute(pos_query, (str(id),))
+            pos_result = cur.fetchall()
+
+            cur.execute(neg_query, (str(id),))
+            neg_result = cur.fetchall()
+            print(pos_result)
+        return [{'value': pos_result[0][0], 'name':'Positive'}, {'value': neg_result[0][0], 'name':'Negative'}]
+
+    def search_movies(self, title, page):
         cur=self.conn.cursor()
         fixed_title = "%" + title+ "%"
-
+        offset = (20 * int(page))
         print(fixed_title)
-        cur.execute("SELECT * from movies WHERE movies.name LIKE ?", (fixed_title,))
+        cur.execute("SELECT * from movies WHERE movies.name LIKE ? COLLATE NOCASE LIMIT 20 OFFSET ?", (fixed_title,str(offset)))
 
         results = cur.fetchall()
         return results
-
+     
+    def keyword_search(self, id, page, keyword):
+        cur=self.conn.cursor()
+        fixed_keyword = "%"+keyword + "%"
+        offset = (20 *(int(page)))
+        cur.execute("SELECT * from review INNER JOIN movies on review.movie_id = movies.ref_num "
+                    "INNER JOIN scores on review.review_id = scores.review_id where movie_id = ? AND (review.review_detail LIKE ? OR review.review_summary LIKE ?) LIMIT 20 OFFSET ?", (str(id),fixed_keyword, fixed_keyword, offset))
+        results = cur.fetchall()
+        return results
+        
     def select_a_movie(self,id):
         cur = self.conn.cursor()
         cur.execute("SELECT * from movies WHERE ref_num = ?", (str(id),))
@@ -195,4 +256,28 @@ class SQLManager(object):
         print(id)
         cur.execute("UPDATE movies set poster_url = ? where ref_num = ?;", (str(url), str(id)))
         self.conn.commit()
+
+    def display_x_movies(self, count):
+        cur = self.conn.cursor()
+        print(id)
+        cur.execute("SELECT * from movies ORDER BY review_count DESC LIMIT ?", (str(count),))
+
+        results=cur.fetchall()
+        return results
+
+    def get_lowest_movies(self, count):
+        cur = self.conn.cursor()
+
+        cur.execute("SELECT * from movies WHERE review_count > 3 ORDER BY average_score ASC, review_count DESC  LIMIT ?", (str(count),))
+
+        results = cur.fetchall()
+        return results
+
+    def get_highest_movies(self, count):
+        cur = self.conn.cursor()
+
+        cur.execute("SELECT * from movies WHERE review_count > 3 ORDER BY average_score DESC, review_count DESC  LIMIT ?", (str(count),))
+
+        results = cur.fetchall()
+        return results
 
