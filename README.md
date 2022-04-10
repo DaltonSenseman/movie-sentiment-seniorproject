@@ -25,7 +25,7 @@ You can find the front end documentation in [this repository](https://github.com
 
 ## Back End Documentation
 
-### [API Documentation](https://github.com/DaltonSenseman/movie-sentiment-seniorproject/blob/main/Flask%20Server/APIDocs.md#reviewsense-api)
+### [ReviewSense API Documentation](https://github.com/DaltonSenseman/movie-sentiment-seniorproject/blob/main/Flask%20Server/APIDocs.md#reviewsense-api)
 
 ### Data Sources
 * [Kaggle](https://www.kaggle.com/)
