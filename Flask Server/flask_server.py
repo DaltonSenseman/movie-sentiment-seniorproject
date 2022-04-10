@@ -330,7 +330,7 @@ def user():
                        'review_date': review[5].strip('\''),
                        'review': review[7].strip('\'').replace('\"', '\''),
                        'rating': review[3],
-                       'sentiment': review[14]}
+                       'sentiment': review[16]}
         reviews.append(review_data)
 
     sql_manager.close_connection()
