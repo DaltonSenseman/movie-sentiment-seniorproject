@@ -8,15 +8,15 @@ Reviewsense retrieves its data from a backend server hosted on an AWS EC2 servic
     * [Retrieve Lowest Rated Movies](#Retrieve-Lowest-Rated-Movies)
     * [Retrieve Highest Rated Movies](#Retrieve-Highest-Rated-Movies)
     * [Retrieve Most Popular Movies](#Retrieve-Most-Popular-Movies)
-2. Reviews
-    * Display a Single Review
-    * Display a Movie's Reviews
-    * Display Sentiment of a Movie's Reviews
-    * Display Sentiment Ratio of a Movie's Reviews
-    * Display Keywords of a Movie's Reviews
-    * Display All Reviews for a Movie Sharing a Keyword
-4. Users
-    * Retrieve User
+2. [Reviews](#Reviews)
+    * [Display a Single Review](#Display-a-Single-Review)
+    * [Display a Movie's Reviews](#Display-a-Movies-Reviews)
+    * [Display Sentiment of a Movie's Reviews](#Display-Sentiment-of-a-Movies-Reviews)
+    * [Display Sentiment Ratio of a Movie's Reviews](#Display-Sentiment-Ratio-of-a-Movies-Reviews)
+    * [Display Keywords of a Movie's Reviews](#Display-Keywords-of-a-Movies-Reviews)
+    * [Display All Reviews for a Movie Sharing a Keyword](#Display-All-Reviews-for-a-Movie-Sharing-a-Keyword)
+4. [Users](#Users)
+    * [Retrieve User](#Retrieve-User)
 
 
 ## Movies
