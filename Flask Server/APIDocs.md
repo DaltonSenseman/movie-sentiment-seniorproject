@@ -2,8 +2,8 @@
 Reviewsense retrieves its data from a backend server hosted on an AWS EC2 service. The Flask instance running on the server uses a series of endpoints as detailed below.
 
 ## Table of Contents
-1. Movies
-    * [Retrieve Movie](###Retrieve Movie)
+1. [Movies](##Movies)
+    * [Retrieve Movie](###Retrieve-Movie)
     * Search Movies
     * Retrieve Lowest Rated Movies
     * Retrieve Highest Rated Movies
