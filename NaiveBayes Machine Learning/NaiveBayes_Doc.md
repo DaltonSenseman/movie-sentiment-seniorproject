@@ -51,13 +51,13 @@ Takes in a single review and checks it against the positive and negative data li
   
 **param**  
   
-**neg_prior_probability:** float value of the probability that a reveiw could be negative 
-**pos_prior_probability:**  float value of the probability that a reveiw could be positive 
-**neg_dict_TOTAL:** int value of the total number of words in the negative dictionary
-**pos_dict_TOTAL:** int value of the total number of words in the positive dictionary
-**review_data:** the review dictionary of the review we are creating the sentiment for  
-**test_data_pos:** the positive dictionary of training data to check against for the ML  
-**test_data_neg:** the negative dictionary of training data to check against for the ML  
+**neg_prior_probability:** float value of the probability that a reveiw could be negative   
+**pos_prior_probability:**  float value of the probability that a reveiw could be positive   
+**neg_dict_TOTAL:** int value of the total number of words in the negative dictionary   
+**pos_dict_TOTAL:** int value of the total number of words in the positive dictionary   
+**review_data:** the review dictionary of the review we are creating the sentiment for     
+**test_data_pos:** the positive dictionary of training data to check against for the ML    
+**test_data_neg:** the negative dictionary of training data to check against for the ML    
   
 **return**  
   
