@@ -6,7 +6,7 @@ Cleans the training data to not have punctuation and also be in all lowercase
   
 **Params**
   
-data: an array/list of strings 
+**data:** an array/list of strings 
   
 **Returns** 
   
@@ -17,7 +17,7 @@ Creates a histogram of each occurrence of the word in the list
   
 **param**   
   
-string_list: a list/array of words  
+**string_list:** a list/array of words  
   
 **return** 
   
@@ -28,8 +28,8 @@ Creates the training data dictionary's by cleaning the data amd having a histogr
   
 **param**  
   
-database_connection: connection to the testdata SQL server connection  
-value: what training data list to grab (0 for negative, 1 for positive)  
+**database_connection:** connection to the testdata SQL server connection  
+**value:** what training data list to grab (0 for negative, 1 for positive)  
   
 **return**  
   
@@ -40,7 +40,7 @@ Takes in a dictionary and compares it to a list of stopwords, if the stopword is
   
 **param**  
   
-dictionary: a dictionary of words to be checked in the tuple form (word : #) 
+**dictionary:** a dictionary of words to be checked in the tuple form (word : #) 
   
 **return**   
   
@@ -51,13 +51,13 @@ Takes in a single review and checks it against the positive and negative data li
   
 **param**  
   
-neg_prior_probability: float value of the probability that a reveiw could be negative 
-pos_prior_probability:  float value of the probability that a reveiw could be positive 
-neg_dict_TOTAL: int value of the total number of words in the negative dictionary
-pos_dict_TOTAL: int value of the total number of words in the positive dictionary
-review_data: the review dictionary of the review we are creating the sentiment for  
-test_data_pos: the positive dictionary of training data to check against for the ML  
-test_data_neg: the negative dictionary of training data to check against for the ML  
+**neg_prior_probability:** float value of the probability that a reveiw could be negative 
+**pos_prior_probability:**  float value of the probability that a reveiw could be positive 
+**neg_dict_TOTAL:** int value of the total number of words in the negative dictionary
+**pos_dict_TOTAL:** int value of the total number of words in the positive dictionary
+**review_data:** the review dictionary of the review we are creating the sentiment for  
+**test_data_pos:** the positive dictionary of training data to check against for the ML  
+**test_data_neg:** the negative dictionary of training data to check against for the ML  
   
 **return**  
   
