@@ -1,14 +1,14 @@
 # ReviewSense NaiveBayes Doc
 Machine learning algorithm used to generate sentiment analysis on movies reveiws
 
-### data_cleaning(data)\
+### data_cleaning(data)
 Cleans the training data to not have punctuation and also be in all lowercase
 **Params**
 data: an array/list of strings
 **Returns**
 an array/list for strings 
 
-### generate_histogram(string_list)\
+### generate_histogram(string_list)
 Creates a histogram of each occurrence of the word in the list  
 **param**  
 string_list: a list/array of words  
