@@ -25,7 +25,9 @@ You can find the front end documentation in [this repository](https://github.com
 
 ## Back End Documentation
 
-### [ReviewSense API Documentation](https://github.com/DaltonSenseman/movie-sentiment-seniorproject/blob/main/Flask%20Server/APIDocs.md#reviewsense-api)
+### [ReviewSense API Documentation](https://github.com/DaltonSenseman/movie-sentiment-seniorproject/blob/main/Flask%20Server/APIDocs.md#reviewsense-api)   
+
+### [NaiveBayes Documentation](https://github.com/DaltonSenseman/movie-sentiment-seniorproject/blob/main/NaiveBayes%20Machine%20Learning/NaiveBayes_Doc.md#reviewsense-naivebayes-doc)
 
 ### Data Sources
 * [Kaggle](https://www.kaggle.com/)
