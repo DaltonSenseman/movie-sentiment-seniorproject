@@ -1,6 +1,10 @@
 # ReviewSense - Back End Repository
 This repository hosts the backend Python flask and Machine Learning for ReviewSense.
 
+### License and Copyright
+
+We are working and discussing the merits of several open-source license structures right now, so please stay tuned. Until a decision is made, however, everything found in this repository is owned by Dalton Senseman, John Maurer and Carrie West and cannot be reproduced, edited or distributed without our express written permission. 
+
 ### Abstract
 
 In this senior project, we were tasked with developing a web-based solution that incorporates machine learning on a set of movie reviews to organize them by sentiment. The stakeholders of our project expressed frustrations with the lack of overall analytics for movie reviews provided by existing services. Our team examined the different potential models and decided to use a Naïve Bayes model for our approach. We gathered our data from two Kaggle datasets, one containing labelled data used to train our model, and the other containing unlabelled data to apply labels to using our trained model. Additionally, we established a back-end server with Python Flask to communicate to our SQLite database and send data using HTTP endpoints. This data is then displayed on a front-end website, built with the Angular framework. We present the resulting website as a minimum viable solution to our stakeholder's concerns.
